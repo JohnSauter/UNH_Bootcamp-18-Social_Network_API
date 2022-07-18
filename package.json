@@ -1,20 +1,19 @@
 {
-  "name": "28-Stu_Mini-Project",
+  "name": "UNL_Bootstrap-28-Social_Network_API",
   "version": "1.0.1",
-  "description": "Mongoose back-end project - Develop",
+  "description": "share thoughts, react to friend's thoughts, and create a friend list",
   "main": "index.js",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "scripts": {
     "start": "node index",
     "dev": "nodemon index",
     "seed": "node utils/seed",
     "heroku-postbuild": "node utils/seed.js"
   },
-  "devDependencies": {
-    "nodemon": "^2.0.19"
-  },
   "dependencies": {
     "express": "^4.18.1",
-    "mongoose": "^6.4.4"
+    "mongoose": "^6.4.5",
+    "mongoose-type-email": "^1.1.2",
+    "validator": "^13.7.0"
   }
 }
