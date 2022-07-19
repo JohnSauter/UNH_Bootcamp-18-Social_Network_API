@@ -1,13 +1,11 @@
 {
-  "name": "UNH_Bootstrap-28-Social_Network_API",
+  "name": "unh_bootcamp-18-social_network_api",
   "version": "1.0.1",
   "description": "share thoughts, react to friend's thoughts, and create a friend list",
   "main": "index.js",
   "license": "AGPL-3.0-or-later",
   "scripts": {
-    "start": "node index",
-    "seed": "node utils/seed",
-    "heroku-postbuild": "node utils/seed.js"
+    "start": "node index"
   },
   "dependencies": {
     "express": "^4.18.1",

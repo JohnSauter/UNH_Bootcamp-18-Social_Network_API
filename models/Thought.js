@@ -1,5 +1,5 @@
-const { Schema, Types } = require('mongoose');
-const reactionSchema = require('./Reaction');
+const { Schema, Types } = require("mongoose");
+const reactionSchema = require("./Reaction");
 
 const thoughtSchema = new Schema(
   {
@@ -20,7 +20,8 @@ const thoughtSchema = new Schema(
     username: {
       type: String,
       required: true,
-    }
+    },
+    reactions: [reactionSchema],
   },
   {
     toJSON: {
@@ -29,5 +30,11 @@ const thoughtSchema = new Schema(
     id: false,
   }
 );
+
+/* Create a virtual property reactionCount that gets the
+ * number of reactions to this thought.  */
+thoughtSchema.virtual("reactionCount").get(function () {
+  return this.reactions.length;
+});
 
 module.exports = assignmentSchema;

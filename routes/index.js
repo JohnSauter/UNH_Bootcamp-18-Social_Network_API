@@ -1,8 +1,10 @@
-const router = require('express').Router();
-const apiRoutes = require('./api');
+const router = require("express").Router();
+const apiRoutes = require("./api");
 
-router.use('/api', apiRoutes);
+/* All the routes in api/ are reached through the api path.  */
+router.use("/api", apiRoutes);
 
-router.use((req, res) => res.send('Wrong route!'));
+/* All other routes are invalid.  */
+router.use((req, res) => res.send("Wrong route!"));
 
 module.exports = router;
