@@ -74,10 +74,12 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
 
-  // Create a reaction
+  // Create a reaction.  The body must contain reactionBody and username.
   createReaction(req, res) {
+    const thoughtId_text = req.params.thoughtId;
+    const thoughtId = ObjectId(thoughtId_text);
     Thought.findOneAndUpdate(
-      { _id: req.params.thoughtId },
+      { _id: thoughtId },
       { $addToSet: { reactions: req.body } },
       { runValidators: true, new: true }
     )
@@ -89,11 +91,15 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
 
-  // Remove a reaction
+  // Remove a reaction.
   removeReaction(req, res) {
+    const thoughtId_text = req.params.thoughtId;
+    const thoughtId = ObjectId(thoughtId_text);
+    const reactionId_text = req.params.reactionId;
+    const reactionId = ObjectId(reactionId_text);
     Thought.findOneAndUpdate(
-      { _id: req.params.thoughtId },
-      { $pull: { reactions: { reactionId: req.body.reactionId } } },
+      { _id: thoughtId },
+      { $pull: { reactions: { reactionId: reactionId } } },
       { runValidators: true, new: true }
     )
       .then((thought) =>
