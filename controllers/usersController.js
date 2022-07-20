@@ -11,7 +11,13 @@ const { User, Thought } = require("../models");
 const headCount = async () =>
   User.aggregate()
     .group({ _id: null, count: { $sum: 1 } })
-    .then((numberOfUsers) => numberOfUsers[0].count);
+    .then((numberOfUsers) => {
+      if (numberOfUsers.length < 1) {
+        return 0;
+      } else {
+        return numberOfUsers[0].count;
+      }
+    });
 
 module.exports = {
   // Get all users
