@@ -1,6 +1,7 @@
 /* Subroutines to respond to thoughts routes  */
 
 const { User, Thought } = require("../models");
+const { ObjectId } = require("mongoose").Types;
 
 module.exports = {
   // Get all thoughts.
@@ -22,20 +23,31 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
 
-  // Create a thought.
+  // Create a thought and add it to the specified user.
   createThought(req, res) {
+    const userId_text = req.body.userId;
+    const userId = ObjectId(userId_text);
     Thought.create(req.body)
-      .then((thought) => res.json(thought))
+      .then((thought) => {
+        User.findOneAndUpdate(
+          { _id: userId },
+          { $push: { thoughts: thought._id } },
+          { new: true }
+        ).then((new_user) => {
+          res.status(201).json(new_user);
+        });
+      })
       .catch((err) => {
-        console.log(err);
-        return res.status(500).json(err);
+        res.status(500).json(err);
       });
   },
 
   // Update a thought.
   updateThought(req, res) {
+    const thoughtId_text = req.params.thoughtId;
+    const thoughtId = ObjectId(thoughtId_text);
     Thought.findOneAndUpdate(
-      { _id: req.params.thoughtId },
+      { _id: thoughtId },
       { $set: req.body },
       { runValidators: true, new: true }
     )
@@ -49,7 +61,9 @@ module.exports = {
 
   // Delete a thought.
   deleteThought(req, res) {
-    Thought.findOneAndDelete({ _id: req.params.thoughtId })
+    const thoughtId_text = req.params.thoughtId;
+    const thoughtId = ObjectId(thoughtId_text);
+    Thought.findOneAndDelete({ _id: thoughtId })
       .then((thought) => {
         if (!thought) {
           res.status(404).json({ message: "No thought with that ID." });

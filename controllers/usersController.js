@@ -101,23 +101,22 @@ module.exports = {
           res.status(404).json({ message: "No such user exists." });
           return;
         }
-        Thought.updateMany(
-          { $pull: { users: { username: user.username } } },
-          { new: true }
-        ).then((thought) => {
-          if (!thought) {
-            res.status(200).json({
-              message: "User deleted, but no thoughts found.",
-            });
-            return;
-          }
-          res
-            .status(200)
-            .json({ message: "User and thoughts successfully deleted." });
-        });
+        const thoughts = user.thoughts;
+        for (i = 0; i < thoughts.length; i++) {
+          const thoughtId_text = thoughts[i];
+          const thoughtId = ObjectId(thoughtId_text);
+          Thought.findByIdAndRemove(thoughtId).then((thought) => {
+            if (!thought) {
+              res.status(404).json({ message: "No thought with that ID." });
+              return;
+            }
+          });
+        }
+        res
+          .status(200)
+          .json({ message: "User and thoughts successfully deleted." });
       })
       .catch((err) => {
-        console.log(err);
         res.status(500).json(err);
       });
   },
