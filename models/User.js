@@ -1,11 +1,11 @@
-const { Schema, model } = require("mongoose");
-const thoughtSchema = require("./Thought");
-const friendSchema = require("./Friend");
+/* Schema for User */
+
+const { Schema, model, SchemaTypes, Types } = require("mongoose");
 const validator = require("validator");
 require("mongoose-type-email");
 
 // Schema to create User model
-const usersSchema = new Schema(
+const userSchema = new Schema(
   {
     username: {
       type: String,
@@ -13,7 +13,7 @@ const usersSchema = new Schema(
       trim: true,
     },
     email: {
-      type: mongoose.SchemaTypes.Email,
+      type: SchemaTypes.Email,
       required: true,
       unique: true,
       /*
@@ -24,8 +24,8 @@ const usersSchema = new Schema(
       },
       */
     },
-    thoughts: [thoughtSchema],
-    friends: [friendSchema],
+    thoughts: [{ type: Schema.Types.ObjectId, ref: "Thought" }],
+    friends: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
   {
     toJSON: {
@@ -36,10 +36,10 @@ const usersSchema = new Schema(
 
 /* Create a virtual property friendCount that gets the
  * number of friends of this user.  */
-usersSchema.virtual("friendCount").get(function () {
+userSchema.virtual("friendCount").get(function () {
   return this.friends.length;
 });
 
-const Users = model("users", usersSchema);
+const User = model("user", userSchema);
 
-module.exports = Users;
+module.exports = { User, userSchema };
