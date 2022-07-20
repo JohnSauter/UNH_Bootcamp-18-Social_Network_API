@@ -3,7 +3,7 @@ const reactionSchema = require("./Reaction");
 
 const thoughtSchema = new Schema(
   {
-    assignmentId: {
+    thoughtId: {
       type: Schema.Types.ObjectId,
       default: () => new Types.ObjectId(),
     },
@@ -37,4 +37,6 @@ thoughtSchema.virtual("reactionCount").get(function () {
   return this.reactions.length;
 });
 
-module.exports = assignmentSchema;
+const Thought = model("thought", thoughtSchema);
+
+module.exports = { Thought, thoughtSchema };

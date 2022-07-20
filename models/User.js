@@ -5,7 +5,7 @@ const validator = require("validator");
 require("mongoose-type-email");
 
 // Schema to create User model
-const userSchema = new Schema(
+const usersSchema = new Schema(
   {
     username: {
       type: String,
@@ -36,10 +36,10 @@ const userSchema = new Schema(
 
 /* Create a virtual property friendCount that gets the
  * number of friends of this user.  */
-userSchema.virtual("friendCount").get(function () {
+usersSchema.virtual("friendCount").get(function () {
   return this.friends.length;
 });
 
-const User = model("user", userSchema);
+const Users = model("users", usersSchema);
 
-module.exports = User;
+module.exports = Users;

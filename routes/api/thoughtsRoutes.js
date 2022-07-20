@@ -1,3 +1,5 @@
+/* Routes that start with /api/thoughts */
+
 const router = require("express").Router();
 const {
   getThoughts,
@@ -5,7 +7,9 @@ const {
   createThought,
   updateThought,
   deleteThought,
-} = require("../../controllers/thoughtController.js");
+  createReaction,
+  removeReaction,
+} = require("../../controllers/thoughtsController.js");
 
 // /api/thoughts
 router.route("/").get(getThoughts).post(createThought);
@@ -16,5 +20,11 @@ router
   .get(getSingleThought)
   .put(updateThought)
   .delete(deleteThought);
+
+// /api/thoughts/:thoughtId/reaction
+router
+  .route("/:thoughtId/reactions")
+  .post(createReaction)
+  .delete(removeReaction);
 
 module.exports = router;
