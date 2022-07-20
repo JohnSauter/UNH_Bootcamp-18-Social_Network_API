@@ -1,6 +1,7 @@
 /* Schema for Reaction */
 
 const { Schema, model, Types } = require("mongoose");
+const { format_date_time } = require("../utils/helpers.js");
 
 const reactionSchema = new Schema(
   {
@@ -20,11 +21,13 @@ const reactionSchema = new Schema(
     createdAt: {
       type: Date,
       default: Date.now,
+      get: format_date_time,
     },
   },
   {
     toJSON: {
       virtuals: true,
+      getters: true,
     },
     id: false,
   }
