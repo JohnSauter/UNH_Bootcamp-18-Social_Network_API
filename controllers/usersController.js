@@ -54,24 +54,36 @@ module.exports = {
 
   // create a new user.
   createUser(req, res) {
-    User.create(req.body)
-      .then((user) => res.json(user))
-      .catch((err) => res.status(500).json(err));
+    User.findOne({ email: req.body.email }).then((user) => {
+      if (user) {
+        res.status(400).json({ message: "Duplicate email address." });
+        return;
+      }
+      User.create(req.body)
+        .then((user) => res.json(user))
+        .catch((err) => res.status(500).json(err));
+    });
   },
 
   // Modify a user.
   modifyUser(req, res) {
-    User.findOneAndUpdate(
-      { _id: req.params.userId },
-      { $set: req.body },
-      { runValidators: true, new: true }
-    )
+    User.findOne({ email: req.body.email })
       .then((user) => {
-        if (!user) {
-          res.status(404).json({ message: "No such user exists." });
+        if (user) {
+          res.status(400).json({ message: "Duplicate email address." });
           return;
         }
-        res.status(200).json(user);
+        User.findOneAndUpdate(
+          { _id: req.params.userId },
+          { $set: req.body },
+          { runValidators: true, new: true }
+        ).then((user) => {
+          if (!user) {
+            res.status(404).json({ message: "No such user exists." });
+            return;
+          }
+          res.status(200).json(user);
+        });
       })
       .catch((err) => {
         console.log(err);
@@ -92,16 +104,17 @@ module.exports = {
         Thought.updateMany(
           { $pull: { users: { username: user.username } } },
           { new: true }
-        );
-      })
-      .then((thought) => {
-        if (!thought) {
-          res.status(404).json({
-            message: "User deleted, but no thoughts found.",
-          });
-          return;
-        }
-        res.json({ message: "User and thoughts successfully deleted" });
+        ).then((thought) => {
+          if (!thought) {
+            res.status(200).json({
+              message: "User deleted, but no thoughts found.",
+            });
+            return;
+          }
+          res
+            .status(200)
+            .json({ message: "User and thoughts successfully deleted." });
+        });
       })
       .catch((err) => {
         console.log(err);
@@ -111,11 +124,12 @@ module.exports = {
 
   // Add a friend to a user.
   addFriend(req, res) {
-    const friendId_text = req.body.friendId;
-    const friendId = new ObjectId(friendId_text);
+    const userId_text = req.params.userId;
+    const userId = new ObjectId(userId_text);
+    const friendId_text = req.params.friendId;
     User.findOneAndUpdate(
-      { _id: req.params.userId },
-      { $addToSet: { friends: { friendId } } },
+      { _id: userId },
+      { $addToSet: { friends: friendId_text } },
       { runValidators: true, new: true }
     )
       .then((user) =>
@@ -128,11 +142,13 @@ module.exports = {
 
   // Remove a friend from a user.
   removeFriend(req, res) {
+    const userId_text = req.params.userId;
+    const userId = new ObjectId(userId_text);
     const friendId_text = req.params.friendId;
     const friendId = new ObjectId(friendId_text);
     User.findOneAndUpdate(
-      { _id: req.params.userId },
-      { $pull: { friends: { friendId } } },
+      { _id: userId },
+      { $pull: { friends: friendId_text } },
       { runValidators: true, new: true }
     )
       .then((user) =>
