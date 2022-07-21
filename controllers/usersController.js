@@ -113,7 +113,11 @@ module.exports = {
            * of his won't matter.  Note that we are not yet removing
            * explicitly deleted thoughts from the user who thought
            * them.  */
-          Thought.findByIdAndRemove(thoughtId);
+          Thought.findByIdAndRemove(thoughtId).then((deleted_thought, err) => {
+            if (err) {
+              console.log(err);
+            }
+          });
         }
         res
           .status(200)
