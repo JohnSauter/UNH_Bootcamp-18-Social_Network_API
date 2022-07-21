@@ -1,4 +1,4 @@
-/* Schema for Reaction */
+/* Schema and (unused) model for Reaction */
 
 const { Schema, model, Types } = require("mongoose");
 const { format_date_time } = require("../utils/helpers.js");

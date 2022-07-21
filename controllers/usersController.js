@@ -39,20 +39,18 @@ module.exports = {
   // Get a single user.
   getSingleUser(req, res) {
     User.findOne({ _id: req.params.userId })
-      .select("-__v")
-      .lean()
-      .then(async (user) =>
+      .then((user) =>
         !user
           ? res.status(404).json({ message: "No user with that ID." })
-          : res.json({ user })
+          : res.status(200).json(user)
       )
       .catch((err) => {
-        console.log(err);
-        return res.status(500).json(err);
+        res.status(500).json(err);
       });
   },
 
-  // create a new user.
+  // create a new user.  Give a good error message if the email
+  // address is not unique.
   createUser(req, res) {
     User.findOne({ email: req.body.email }).then((user) => {
       if (user) {
@@ -60,13 +58,16 @@ module.exports = {
         return;
       }
       User.create(req.body)
-        .then((user) => res.json(user))
+        .then((user) => res.status(200).json(user))
         .catch((err) => res.status(500).json(err));
     });
   },
 
-  // Modify a user.
+  // Modify a user.  Give a good error message if the email
+  // address is not unique.
   modifyUser(req, res) {
+    const userId_text = req.params.userId;
+    const userId = ObjectId(userId_text);
     User.findOne({ email: req.body.email })
       .then((user) => {
         if (user) {
@@ -74,7 +75,7 @@ module.exports = {
           return;
         }
         User.findOneAndUpdate(
-          { _id: req.params.userId },
+          { _id: userId },
           { $set: req.body },
           { runValidators: true, new: true }
         ).then((user) => {
@@ -94,7 +95,7 @@ module.exports = {
   // Delete a user and all his thoughts.
   deleteUser(req, res) {
     const userId_text = req.params.userId;
-    const userId = new ObjectId(userId_text);
+    const userId = ObjectId(userId_text);
     User.findOneAndRemove({ _id: userId })
       .then((user) => {
         if (!user) {
@@ -105,12 +106,14 @@ module.exports = {
         for (i = 0; i < thoughts.length; i++) {
           const thoughtId_text = thoughts[i];
           const thoughtId = ObjectId(thoughtId_text);
-          Thought.findByIdAndRemove(thoughtId).then((thought) => {
-            if (!thought) {
-              res.status(404).json({ message: "No thought with that ID." });
-              return;
-            }
-          });
+          /* It would be better to collect all these promises and
+           * make sure they resolve positively before returning
+           * success.  My excuse for not doing that is that we
+           * are deleting the user, so any undeletable thoughts
+           * of his won't matter.  Note that we are not yet removing
+           * explicitly deleted thoughts from the user who thought
+           * them.  */
+          Thought.findByIdAndRemove(thoughtId);
         }
         res
           .status(200)
@@ -124,17 +127,18 @@ module.exports = {
   // Add a friend to a user.
   addFriend(req, res) {
     const userId_text = req.params.userId;
-    const userId = new ObjectId(userId_text);
+    const userId = ObjectId(userId_text);
     const friendId_text = req.params.friendId;
+    const friendId = ObjectId(friendId_text);
     User.findOneAndUpdate(
       { _id: userId },
-      { $addToSet: { friends: friendId_text } },
+      { $addToSet: { friends: friendId } },
       { runValidators: true, new: true }
     )
       .then((user) =>
         !user
           ? res.status(404).json({ message: "No user found with that ID." })
-          : res.json(user)
+          : res.status(200).json(user)
       )
       .catch((err) => res.status(500).json(err));
   },
@@ -142,18 +146,18 @@ module.exports = {
   // Remove a friend from a user.
   removeFriend(req, res) {
     const userId_text = req.params.userId;
-    const userId = new ObjectId(userId_text);
+    const userId = ObjectId(userId_text);
     const friendId_text = req.params.friendId;
-    const friendId = new ObjectId(friendId_text);
+    const friendId = ObjectId(friendId_text);
     User.findOneAndUpdate(
       { _id: userId },
-      { $pull: { friends: friendId_text } },
+      { $pull: { friends: friendId } },
       { runValidators: true, new: true }
     )
       .then((user) =>
         !user
           ? res.status(404).json({ message: "No user found with that ID." })
-          : res.json(user)
+          : res.status(200).json(user)
       )
       .catch((err) => res.status(500).json(err));
   },

@@ -1,4 +1,4 @@
-/* Schema for Thought */
+/* Schema and model for Thought */
 
 const { Schema, model, Types } = require("mongoose");
 const { format_date_time } = require("../utils/helpers.js");
@@ -26,6 +26,7 @@ const thoughtSchema = new Schema(
   },
   {
     toJSON: {
+      virtuals: true,
       getters: true,
     },
     id: false,

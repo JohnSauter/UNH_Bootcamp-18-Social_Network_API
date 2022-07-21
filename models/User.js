@@ -1,4 +1,4 @@
-/* Schema for User */
+/* Schema and model for User */
 
 const { Schema, model, SchemaTypes, Types } = require("mongoose");
 const validator = require("validator");
@@ -29,6 +29,7 @@ const userSchema = new Schema(
   },
   {
     toJSON: {
+      virtuals: true,
       getters: true,
     },
   }
