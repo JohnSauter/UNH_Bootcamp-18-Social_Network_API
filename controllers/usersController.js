@@ -4,7 +4,7 @@
 // into an ObjectId for querying database
 const { ObjectId } = require("mongoose").Types;
 
-const { User, Thought } = require("../models");
+const { User, userSchema, Thought, thoughtSchema } = require("../models");
 
 /* Create an aggregate function to get the number of users overall
  */
@@ -23,6 +23,8 @@ module.exports = {
   // Get all users
   getUsers(req, res) {
     User.find()
+      .populate("friends")
+      .populate("thoughts")
       .then(async (users) => {
         const userObj = {
           users,
@@ -39,6 +41,8 @@ module.exports = {
   // Get a single user.
   getSingleUser(req, res) {
     User.findOne({ _id: req.params.userId })
+      .populate("thoughts")
+      .populate("friends")
       .then((user) =>
         !user
           ? res.status(404).json({ message: "No user with that ID." })

@@ -1,9 +1,8 @@
 /* The Reaction, Thought and User files in the
  * models directory provide both the
- * schema and the model.  Here we care only about the
- * User and Thought models.
+ * schema and the model.  
  */
-const { User } = require("./User");
-const { Thought } = require("./Thought");
+const { User, userSchema } = require("./User.js");
+const { Thought, thoughtSchema } = require("./Thought.js");
 
-module.exports = { User, Thought };
+module.exports = { User, userSchema, Thought, thoughtSchema };

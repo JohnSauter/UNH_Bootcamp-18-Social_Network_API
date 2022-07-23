@@ -2,7 +2,6 @@
 
 const express = require("express");
 const db = require("./config/connection");
-const routes = require("./routes");
 
 /* If there is an environment variable named PORT, 
  * use its value for the port to listen on.
@@ -15,6 +14,8 @@ const activity = "Social Network API";
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+const routes = require("./routes");
 app.use(routes);
 
 /* When we have the database open and running,

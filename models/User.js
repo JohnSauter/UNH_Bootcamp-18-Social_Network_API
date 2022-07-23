@@ -4,6 +4,8 @@ const { Schema, model, SchemaTypes, Types } = require("mongoose");
 const validator = require("validator");
 require("mongoose-type-email");
 
+const { Thought } = require("./Thought.js");
+
 // Schema to create User model
 const userSchema = new Schema(
   {
@@ -41,6 +43,6 @@ userSchema.virtual("friendCount").get(function () {
   return this.friends.length;
 });
 
-const User = model("user", userSchema);
+const User = model("User", userSchema);
 
 module.exports = { User, userSchema };
