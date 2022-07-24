@@ -64,20 +64,22 @@ module.exports = {
   deleteThought(req, res) {
     const thoughtId_text = req.params.thoughtId;
     const thoughtId = ObjectId(thoughtId_text);
-    Thought.findOneAndDelete({ _id: thoughtId })
-      .then((thought) => {
-        if (!thought) {
-          res.status(404).json({ message: "No thought with that ID." });
-          return;
-        }
-        /* Future: delete the thought from the user who thought it.
-         * To avoid searching through all users for the thought,
-         * include the user id in the thought structure.  We cannot
-         * trust the user name because it was provided separately
-         * when the thought was created.  */
-        res.status(200).json(thought);
-      })
-      .catch((err) => res.status(500).json(err));
+    Thought.findOneAndDelete({ _id: thoughtId }).then((thought) => {
+      if (!thought) {
+        res.status(404).json({ message: "No thought with that ID." });
+        return;
+      }
+      /* Remove the thought from the user who thought it.  */
+      User.findOneAndUpdate(
+        { thoughts: thoughtId },
+        { $pull: { thoughts: thoughtId } },
+        { new: true }
+      )
+        .then((user) => {
+          res.status(200).json({ user, thought });
+        })
+        .catch((err) => res.status(500).json(err));
+    });
   },
 
   // Create a reaction.  The body must contain reactionBody and username.

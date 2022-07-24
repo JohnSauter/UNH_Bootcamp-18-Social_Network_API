@@ -4,7 +4,8 @@
 // into an ObjectId for querying database
 const { ObjectId } = require("mongoose").Types;
 
-const { User, userSchema, Thought, thoughtSchema } = require("../models");
+/* The MongoDB models  */
+const { User, Thought } = require("../models");
 
 /* Create an aggregate function to get the number of users overall
  */
