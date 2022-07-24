@@ -59,7 +59,7 @@ module.exports = {
   createUser(req, res) {
     User.findOne({ email: req.body.email }).then((user) => {
       if (user) {
-        res.status(400).json({ message: "Duplicate email address." });
+        res.status(400).json({ message: "Duplicate email address.", user });
         return;
       }
       User.create(req.body)
@@ -74,25 +74,30 @@ module.exports = {
     const userId_text = req.params.userId;
     const userId = ObjectId(userId_text);
     User.findOne({ email: req.body.email })
-      .then((user) => {
-        if (user) {
-          res.status(400).json({ message: "Duplicate email address." });
+      .then((other_user) => {
+        if (other_user) {
+          res
+            .status(400)
+            .json({ message: "Duplicate email address.", other_user });
           return;
         }
         User.findOneAndUpdate(
           { _id: userId },
           { $set: req.body },
           { runValidators: true, new: true }
-        ).then((user) => {
-          if (!user) {
-            res.status(404).json({ message: "No such user exists." });
-            return;
-          }
-          res.status(200).json(user);
-        });
+        )
+          .then((user) => {
+            if (!user) {
+              res.status(404).json({ message: "No such user exists." });
+              return;
+            }
+            res.status(200).json(user);
+          })
+          .catch((err) =>
+            res.status(500).json({ err, request_body: req.body })
+          );
       })
       .catch((err) => {
-        console.log(err);
         res.status(500).json(err);
       });
   },
@@ -108,25 +113,27 @@ module.exports = {
           return;
         }
         const thoughts = user.thoughts;
+
+        /* The user may have an arbitrary number of thoughts, and
+         * removing a thought is an asynchronous process.  Remember
+         * the remove promises in an array and wait for them all
+         * to resolve.  We don't much care if a remove is unsuccessful
+         * because we are removing the user.  */
+        const promise_array = [];
         for (i = 0; i < thoughts.length; i++) {
           const thoughtId_text = thoughts[i];
           const thoughtId = ObjectId(thoughtId_text);
-          /* It would be better to collect all these promises and
-           * make sure they resolve positively before returning
-           * success.  My excuse for not doing that is that we
-           * are deleting the user, so any undeletable thoughts
-           * of his won't matter.  Note that we are not yet removing
-           * explicitly deleted thoughts from the user who thought
-           * them.  */
-          Thought.findByIdAndRemove(thoughtId).then((deleted_thought, err) => {
-            if (err) {
-              console.log(err);
-            }
-          });
+          const the_promise = Thought.findByIdAndRemove(thoughtId);
+          promise_array.push(the_promise);
         }
-        res
-          .status(200)
-          .json({ message: "User and thoughts successfully deleted." });
+
+        Promise.allSettled(promise_array).then((thought_removal_results) =>
+          res.status(200).json({
+            message: "User and his thoughts successfully deleted.",
+            user,
+            thought_removal_results,
+          })
+        );
       })
       .catch((err) => {
         res.status(500).json(err);
