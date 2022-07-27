@@ -36,9 +36,9 @@ I was unable to demonstrate the fifteen items listed in the walkthrough
 requirements in just five minutes, so I divided the walkthrough into
 two parts:
 
-![walkthrough part 1](./assets/videos/walkthrough_01.mp4)
+![walkthrough part 1](https://youtu.be/EVnBelDXQas)
 
-![walkthrough part 2](./assets/videos/walkthrough_02.mp4)
+![walkthrough part 2](https://youtu.be/pk3bN5ceCi0)
 
 ## Questions
 
